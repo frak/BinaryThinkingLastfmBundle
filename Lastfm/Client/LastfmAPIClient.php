@@ -47,7 +47,7 @@ abstract class LastfmAPIClient
         $httpQuery = http_build_query($params);
         curl_setopt($this->cURL, CURLOPT_POSTFIELDS, $httpQuery);
         $cURLResponse = curl_exec($this->cURL);
-        $response = new \SimpleXMLElement($cURLResponse);
+        $response = new \SimpleXMLElement($this->removeSpecialChars($cURLResponse));
         
         $this->validateResponse($response);
         
@@ -66,5 +66,17 @@ abstract class LastfmAPIClient
             throw new \Exception('Invalid response');
         }
     }
-    
+
+    /**
+     * Because Last.fm send unescaped chinese characters
+     *
+     * @param $xmlData
+     *
+     * @return string
+     */
+    private function removeSpecialChars($xmlData)
+    {
+        return preg_replace('/[^\x{0009}\x{000a}\x{000d}\x{0020}-\x{D7FF}\x{E000}-\x{FFFD}]+/u', ' ', $xmlData);
+    }
+
 }
