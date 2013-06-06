@@ -47,8 +47,12 @@ abstract class LastfmAPIClient
         $httpQuery = http_build_query($params);
         curl_setopt($this->cURL, CURLOPT_POSTFIELDS, $httpQuery);
         $cURLResponse = curl_exec($this->cURL);
-        $response = new \SimpleXMLElement($this->removeSpecialChars($cURLResponse));
-        
+        try {
+            $response = new \SimpleXMLElement($this->removeSpecialChars($cURLResponse));
+        } catch(\Exception $e) {
+            var_dump($this->removeSpecialChars($cURLResponse));
+        }
+
         $this->validateResponse($response);
         
         return $response;
