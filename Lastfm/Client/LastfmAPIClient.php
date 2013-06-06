@@ -51,6 +51,7 @@ abstract class LastfmAPIClient
             $response = new \SimpleXMLElement($this->removeSpecialChars($cURLResponse));
         } catch(\Exception $e) {
             var_dump($this->removeSpecialChars($cURLResponse));
+            throw $e;
         }
 
         $this->validateResponse($response);
