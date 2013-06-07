@@ -76,6 +76,39 @@ class Event implements LastfmModelInterface
         return $event;
     }
 
+    public static function createFromJson($eventData){
+        $event = new Event();
+        $event->setId($response->id);
+        $event->setTitle((string)$response->title);
+        $artists = array();
+        foreach ($response->artists->artist as $artist) {
+            $artists[] = (string)$artist;
+        }
+        $event->setArtists($artists);
+        $event->setHeadliner((string)$response->artists->headliner);
+        $venue = Venue::createFromResponse($response->venue);
+        $event->setVenue($venue);
+        $event->setStartDate((string)$response->startDate);
+        $event->setDescription($response->description);
+        $images = array();
+        foreach ($response->image as $image) {
+            $imageAttributes = $image->attributes();
+            if (!empty($imageAttributes->size)) {
+                $images[(string)$imageAttributes->size] = (string)$image;
+            }
+        }
+        $event->setImages($images);
+        $event->setAttendance((int)$response->attendance);
+        $event->setReviews((int)$response->reviews);
+        $event->setEventTag((string)$response->tag);
+        $event->setUrl((string)$response->url);
+        $event->setWebsite((string)$response->website);
+        $event->setTickets((int)$response->tickets);
+        $event->setCancelled((int)$response->cancelled);
+
+        return $event;
+    }
+
     public function getId()
     {
         return $this->id;

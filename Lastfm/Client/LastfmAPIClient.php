@@ -9,34 +9,36 @@ namespace BinaryThinking\LastfmBundle\Lastfm\Client;
  */
 abstract class LastfmAPIClient
 {
-    
+
     const API_ROOT_URL = 'http://ws.audioscrobbler.com/2.0/';
+
     const RESPONSE_STATUS_OK = 'ok';
+
     const RESPONSE_STATUS_FAILED = 'failed';
-    
+
     protected $apiKey;
-    
+
     protected $apiSecret;
-    
+
     protected $cURL;
-    
+
     public function __construct($apiKey, $apiSecret)
     {
-        $this->apiKey = $apiKey;
+        $this->apiKey    = $apiKey;
         $this->apiSecret = $apiSecret;
-        
+
         $this->cURL = curl_init();
-        
+
         curl_setopt($this->cURL, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($this->cURL, CURLOPT_USERAGENT, 'BinaryThinkingLastfmBundle for Symfony');
         curl_setopt($this->cURL, CURLOPT_URL, self::API_ROOT_URL);
         curl_setopt($this->cURL, CURLOPT_POST, 1);
     }
-    
-    public function __destruct() {
+
+    public function __destruct()
+    {
         curl_close($this->cURL);
     }
-
 
     /**
      * @codeCoverageIgnore cURL responses are stubbed in tests
@@ -44,32 +46,22 @@ abstract class LastfmAPIClient
     protected function call(array $params = array())
     {
         $params['api_key'] = $this->apiKey;
-        $httpQuery = http_build_query($params);
+        $httpQuery         = http_build_query($params);
         curl_setopt($this->cURL, CURLOPT_POSTFIELDS, $httpQuery);
         $cURLResponse = curl_exec($this->cURL);
-        try {
-            $response = new \SimpleXMLElement($this->removeSpecialChars($cURLResponse));
-        } catch(\Exception $e) {
-            var_dump($this->removeSpecialChars($cURLResponse));
-            throw $e;
+        if ($params['format'] === 'json') {
+            $response = json_decode($cURLResponse);
+        } else {
+            try {
+                $response = new \SimpleXMLElement($this->removeSpecialChars($cURLResponse));
+                $this->validateResponse($response);
+            } catch (\Exception $e) {
+                var_dump($this->removeSpecialChars($cURLResponse));
+                throw $e;
+            }
         }
 
-        $this->validateResponse($response);
-        
         return $response;
-    }
-    
-    /**
-     * @codeCoverageIgnore since only called from ignored call method
-     */
-    protected function validateResponse(\SimpleXMLElement $response)
-    {
-        $responseAttributes = $response->attributes();
-        if(isset($responseAttributes->status) && $responseAttributes->status == self::RESPONSE_STATUS_FAILED){
-            throw new \Exception($response->error);
-        } elseif(!isset($responseAttributes->status)) {
-            throw new \Exception('Invalid response');
-        }
     }
 
     /**
@@ -84,4 +76,16 @@ abstract class LastfmAPIClient
         return preg_replace('/[^\x{0009}\x{000a}\x{000d}\x{0020}-\x{D7FF}\x{E000}-\x{FFFD}]+/u', ' ', $xmlData);
     }
 
+    /**
+     * @codeCoverageIgnore since only called from ignored call method
+     */
+    protected function validateResponse(\SimpleXMLElement $response)
+    {
+        $responseAttributes = $response->attributes();
+        if (isset($responseAttributes->status) && $responseAttributes->status == self::RESPONSE_STATUS_FAILED) {
+            throw new \Exception($response->error);
+        } elseif (!isset($responseAttributes->status)) {
+            throw new \Exception('Invalid response');
+        }
+    }
 }
