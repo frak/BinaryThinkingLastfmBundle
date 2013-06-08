@@ -76,35 +76,39 @@ class Event implements LastfmModelInterface
         return $event;
     }
 
-    public static function createFromJson($eventData){
+    public static function createFromJson(\stdClass $eventData)
+    {
         $event = new Event();
-        $event->setId($response->id);
-        $event->setTitle((string)$response->title);
+        $event->setId($eventData->id);
+        $event->setTitle($eventData->title);
         $artists = array();
-        foreach ($response->artists->artist as $artist) {
-            $artists[] = (string)$artist;
+        if (is_array($eventData->artists)) {
+            foreach ($eventData->artists->artist as $artist) {
+                $artists[] = $artist;
+            }
+        } else {
+            $artists[] = $eventData->artists->artist;
         }
         $event->setArtists($artists);
-        $event->setHeadliner((string)$response->artists->headliner);
-        $venue = Venue::createFromResponse($response->venue);
+        $event->setHeadliner($eventData->artists->headliner);
+        $venue = Venue::createFromJson($eventData->venue);
         $event->setVenue($venue);
-        $event->setStartDate((string)$response->startDate);
-        $event->setDescription($response->description);
+        $event->setStartDate((string)$eventData->startDate);
+        $event->setDescription($eventData->description);
         $images = array();
-        foreach ($response->image as $image) {
-            $imageAttributes = $image->attributes();
-            if (!empty($imageAttributes->size)) {
-                $images[(string)$imageAttributes->size] = (string)$image;
+        foreach ($eventData->image as $image) {
+            if (!empty($image->size)) {
+                $images[$image->size] = $image->{"#text"};
             }
         }
         $event->setImages($images);
-        $event->setAttendance((int)$response->attendance);
-        $event->setReviews((int)$response->reviews);
-        $event->setEventTag((string)$response->tag);
-        $event->setUrl((string)$response->url);
-        $event->setWebsite((string)$response->website);
-        $event->setTickets((int)$response->tickets);
-        $event->setCancelled((int)$response->cancelled);
+        $event->setAttendance($eventData->attendance);
+        $event->setReviews($eventData->reviews);
+        $event->setEventTag($eventData->tag);
+        $event->setUrl($eventData->url);
+        $event->setWebsite($eventData->website);
+        $event->setTickets($eventData->tickets);
+        $event->setCancelled($eventData->cancelled);
 
         return $event;
     }

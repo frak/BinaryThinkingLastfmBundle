@@ -50,7 +50,7 @@ abstract class LastfmAPIClient
         curl_setopt($this->cURL, CURLOPT_POSTFIELDS, $httpQuery);
         $cURLResponse = curl_exec($this->cURL);
         if ($params['format'] === 'json') {
-            $response = json_decode($cURLResponse);
+            $response     = json_decode($cURLResponse);
         } else {
             try {
                 $response = new \SimpleXMLElement($this->removeSpecialChars($cURLResponse));

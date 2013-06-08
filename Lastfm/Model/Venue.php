@@ -25,7 +25,7 @@ class Venue implements LastfmModelInterface
     protected $phoneNumber;
     
     protected $images;
-    
+
     public static function createFromResponse(\SimpleXMLElement $response)
     {
         $venue = new Venue();
@@ -53,10 +53,41 @@ class Venue implements LastfmModelInterface
             }
         }
         $venue->setImages($images);
-        
+
         return $venue;
     }
-    
+
+    public static function createFromJson(\stdClass $venueData)
+    {
+        $venue = new Venue();
+        $venue->setId($venueData->id);
+        $venue->setName($venueData->name);
+        $location = array();
+        $location['city'] = $venueData->location->city;
+        $location['country'] = $venueData->location->country;
+        $location['street'] = $venueData->location->street;
+        $location['postalcode'] = $venueData->location->postalcode;
+        $venue->setLocation($location);
+        if(isset($venueData->location->{"geo:point"})) {
+            $geoPoint = array();
+            $geoPoint['lat'] = $venueData->location->{"geo:point"}->{"geo:lat"};
+            $geoPoint['long'] = $venueData->location->{"geo:point"}->{"geo:long"};
+            $venue->setGeoPoint($geoPoint);
+        }
+        $venue->setUrl((string) $venueData->url);
+        $venue->setWebsite((string) $venueData->website);
+        $venue->setPhoneNumber((string) $venueData->phonenumber);
+        $images = array();
+        foreach($venueData->image as $image){
+            if(!empty($image->size)){
+                $images[$image->size] = $image->{"#text"};
+            }
+        }
+        $venue->setImages($images);
+
+        return $venue;
+    }
+
     public function getId()
     {
         return $this->id;

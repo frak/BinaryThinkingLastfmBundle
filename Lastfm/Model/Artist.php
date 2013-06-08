@@ -32,14 +32,14 @@ class Artist implements LastfmModelInterface
     protected $bio = array();
     
     protected $weight;
-    
+
     public static function createFromResponse(\SimpleXMLElement $response)
     {
         $artist = new Artist();
         $artist->setName((string) $response->name);
         $artist->setMbid((string) $response->mbid);
         $artist->setUrl((string) $response->url);
-        
+
         $images = array();
         if(!empty($response->image)){
             foreach($response->image as $image){
@@ -47,12 +47,12 @@ class Artist implements LastfmModelInterface
                 if(!empty($imageAttributes->size)){
                     $images[(string) $imageAttributes->size] = (string) $image;
                 }
-            }            
+            }
         }
         $artist->setImages($images);
-        
+
         $artist->setStreamable((int) $response->streamable);
-        
+
         if(!empty($response->stats)){
             $artist->setListeners((int) $response->stats->listeners);
             $artist->setPlayCount((int) $response->stats->playcount);
@@ -60,7 +60,7 @@ class Artist implements LastfmModelInterface
         elseif(isset($response->listeners)){
             $artist->setListeners((int) $response->listeners);
         }
-        
+
         $similar = array();
         if(!empty($response->similar->artist)){
             foreach($response->similar->artist as $similarArtistXML){
@@ -71,7 +71,7 @@ class Artist implements LastfmModelInterface
             }
         }
         $artist->setSimilar($similar);
-        
+
         $tags = array();
         if(!empty($response->tags->tag)){
             foreach($response->tags->tag as $tag){
@@ -79,7 +79,7 @@ class Artist implements LastfmModelInterface
             }
         }
         $artist->setTags($tags);
-        
+
         $bio = array();
         if(!empty($response->bio)){
             $bio['published'] = (string) $response->bio->published;
@@ -87,12 +87,67 @@ class Artist implements LastfmModelInterface
             $bio['content'] = (string) $response->bio->content;
         }
         $artist->setBio($bio);
-        
+
         $artist->setWeight((int) $response->weight);
-        
+
         return $artist;
     }
-    
+
+    public static function createFromJson(\stdClass $artistData)
+    {
+        $artist = new Artist();
+        $artist->setName($artistData->name);
+        $artist->setMbid($artistData->mbid);
+        $artist->setUrl($artistData->url);
+
+        $images = array();
+        foreach($artistData->image as $image){
+            if(!empty($image->size)){
+                $images[$image->size] = $image->{"#text"};
+            }
+        }
+        $artist->setImages($images);
+
+        $artist->setStreamable($artistData->streamable);
+
+        if(!empty($artistData->stats)){
+            $artist->setListeners($artistData->stats->listeners);
+            $artist->setPlayCount($artistData->stats->playcount);
+        }
+        elseif(isset($artistData->listeners)){
+            $artist->setListeners($artistData->listeners);
+        }
+
+        $similar = array();
+        if(!empty($artistData->similar->artist)){
+            foreach($artistData->similar->artist as $similarArtist){
+                $similarArtist = self::createFromJson($similarArtist);
+                if(!empty($similarArtist)){
+                    $similar[$similarArtist->getName()] = $similarArtist;
+                }
+            }
+        }
+        $artist->setSimilar($similar);
+
+        $tags = array();
+        if(!empty($artistData->tags->tag)){
+            foreach($artistData->tags->tag as $tag){
+                $tags[] = Tag::createFromJson($tag);
+            }
+        }
+        $artist->setTags($tags);
+
+        $bio = array();
+        if(!empty($artistData->bio)){
+            $bio['published'] = (string) $artistData->bio->published;
+            $bio['summary'] = (string) $artistData->bio->summary;
+            $bio['content'] = (string) $artistData->bio->content;
+        }
+        $artist->setBio($bio);
+
+        return $artist;
+    }
+
     public function getName()
     {
         return $this->name;

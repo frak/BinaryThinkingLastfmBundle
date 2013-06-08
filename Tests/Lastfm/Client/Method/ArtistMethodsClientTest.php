@@ -146,13 +146,13 @@ class ArtistMethodsClientTest extends MethodsClientTestCase
     {
         $this->stubCallMethod('MockSearchArtistResponse');
         
-        $searchedArtists = $this->client->search('Death');
-        $this->assertNotEmpty($searchedArtists, 'no artists retrieved');
+        $searchedArtists = $this->client->search('Afrojack');
+        $this->assertNotEmpty($searchedArtists, 'No artists retrieved');
         
         $firstArtist = reset($searchedArtists);
-        $this->assertInstanceOf('BinaryThinking\LastfmBundle\Lastfm\Model\Artist', $firstArtist, 'artist is not a valid instance of Artist class');
-        $this->assertEquals('Death Cab for Cutie', $firstArtist->getName(), 'artist name does not match');
-        $this->assertEquals(2356401, $firstArtist->getListeners(), 'listeners does not match');
+        $this->assertInstanceOf('BinaryThinking\LastfmBundle\Lastfm\Model\Artist', $firstArtist, 'Artist is not a valid instance of Artist class');
+        $this->assertEquals('Afrojack', $firstArtist->getName(), 'artist name does not match');
+        $this->assertEquals(277193, $firstArtist->getListeners(), 'listeners does not match');
     }
     
     public function testGetTopFans()
