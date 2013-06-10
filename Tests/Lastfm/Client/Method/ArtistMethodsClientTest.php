@@ -150,9 +150,9 @@ class ArtistMethodsClientTest extends MethodsClientTestCase
         $this->assertNotEmpty($searchedArtists, 'No artists retrieved');
         
         $firstArtist = reset($searchedArtists);
-        $this->assertInstanceOf('BinaryThinking\LastfmBundle\Lastfm\Model\Artist', $firstArtist, 'Artist is not a valid instance of Artist class');
-        $this->assertEquals('Afrojack', $firstArtist->getName(), 'artist name does not match');
-        $this->assertEquals(277193, $firstArtist->getListeners(), 'listeners does not match');
+        $this->assertInstanceOf('BinaryThinking\LastfmBundle\Lastfm\Model\Artist', $firstArtist, 'Object is not a valid instance of Artist class');
+        $this->assertEquals('Afrojack', $firstArtist->getName(), 'Artist name does not match');
+        $this->assertEquals(277193, $firstArtist->getListeners(), 'Listeners do not match');
     }
     
     public function testGetTopFans()
