@@ -24,6 +24,8 @@ class Event implements LastfmModelInterface
 
     protected $startDate;
 
+    protected $endDate;
+
     protected $description;
 
     protected $images;
@@ -93,7 +95,10 @@ class Event implements LastfmModelInterface
         $event->setHeadliner($eventData->artists->headliner);
         $venue = Venue::createFromJson($eventData->venue);
         $event->setVenue($venue);
-        $event->setStartDate((string)$eventData->startDate);
+        $event->setStartDate($eventData->startDate);
+        if(isset($eventData->endDate)){
+            $event->setEndDate($eventData->endDate);
+        }
         $event->setDescription($eventData->description);
         $images = array();
         foreach ($eventData->image as $image) {
@@ -171,6 +176,16 @@ class Event implements LastfmModelInterface
     public function setStartDate($startDate)
     {
         $this->startDate = $startDate;
+    }
+
+    public function getEndDate()
+    {
+        return $this->endDate;
+    }
+
+    public function setEndDate($endDate)
+    {
+        $this->endDate = $endDate;
     }
 
     public function getDescription()
