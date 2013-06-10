@@ -84,7 +84,7 @@ class Event implements LastfmModelInterface
         $event->setId($eventData->id);
         $event->setTitle($eventData->title);
         $artists = array();
-        if (is_array($eventData->artists)) {
+        if (is_array($eventData->artists->artist)) {
             foreach ($eventData->artists->artist as $artist) {
                 $artists[] = $artist;
             }

@@ -74,9 +74,9 @@ class Venue implements LastfmModelInterface
             $geoPoint['long'] = $venueData->location->{"geo:point"}->{"geo:long"};
             $venue->setGeoPoint($geoPoint);
         }
-        $venue->setUrl((string) $venueData->url);
-        $venue->setWebsite((string) $venueData->website);
-        $venue->setPhoneNumber((string) $venueData->phonenumber);
+        $venue->setUrl($venueData->url);
+        $venue->setWebsite($venueData->website);
+        $venue->setPhoneNumber($venueData->phonenumber);
         $images = array();
         foreach($venueData->image as $image){
             if(!empty($image->size)){
