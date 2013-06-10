@@ -26,7 +26,10 @@ class GeoMethodsClientTest extends MethodsClientTestCase
         $this->stubCallMethod('MockGeoGetEventsResponse');
 
         $events = $this->client->getEvents('Belgium');
-        $this->assertNotEmpty($events, "Events not retrieved");
+        $meta = $events['meta'];
+        $events = $events['data'];
+        $this->assertNotEmpty($events, 'Events not retrieved');
+        $this->assertEquals(1000, $meta->total, 'Wrong number of search results retrieved');
 
         $firstEvent = reset($events);
         $this->assertInstanceOf(

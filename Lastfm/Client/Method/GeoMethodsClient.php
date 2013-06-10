@@ -63,6 +63,11 @@ class GeoMethodsClient extends LastfmAPIClient
             }
         }
 
-        return $events;
+        $out = array(
+            'data' => $events,
+            'meta' => $response->events->{"@attr"}
+        );
+
+        return $out;
     }
 }
