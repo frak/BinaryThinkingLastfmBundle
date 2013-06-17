@@ -350,7 +350,7 @@ class ArtistMethodsClient extends LastfmAPIClient
         );
 
         $artists = array();
-        if (!empty($response->results->artistmatches->artist)) {
+        if ($response->results->{'opensearch:totalResults'} > 0 && !empty($response->results->artistmatches->artist)) {
             if (is_array($response->results->artistmatches->artist)) {
                 foreach ($response->results->artistmatches->artist as $artist) {
                     $artists[] = LastfmModel\Artist::createFromJson($artist);
