@@ -12,60 +12,59 @@ use BinaryThinking\LastfmBundle\Lastfm\Model\Tag;
 class Artist implements LastfmModelInterface
 {
     protected $name;
-    
+
     protected $mbid;
-    
+
     protected $url;
-    
+
     protected $images;
-    
+
     protected $streamable;
-    
+
     protected $listeners;
-    
+
     protected $playCount;
-    
+
     protected $similar = array();
-    
+
     protected $tags = array();
-    
+
     protected $bio = array();
-    
+
     protected $weight;
 
     public static function createFromResponse(\SimpleXMLElement $response)
     {
         $artist = new Artist();
-        $artist->setName((string) $response->name);
-        $artist->setMbid((string) $response->mbid);
-        $artist->setUrl((string) $response->url);
+        $artist->setName((string)$response->name);
+        $artist->setMbid((string)$response->mbid);
+        $artist->setUrl((string)$response->url);
 
         $images = array();
-        if(!empty($response->image)){
-            foreach($response->image as $image){
+        if (!empty($response->image)) {
+            foreach ($response->image as $image) {
                 $imageAttributes = $image->attributes();
-                if(!empty($imageAttributes->size)){
-                    $images[(string) $imageAttributes->size] = (string) $image;
+                if (!empty($imageAttributes->size)) {
+                    $images[(string)$imageAttributes->size] = (string)$image;
                 }
             }
         }
         $artist->setImages($images);
 
-        $artist->setStreamable((int) $response->streamable);
+        $artist->setStreamable((int)$response->streamable);
 
-        if(!empty($response->stats)){
-            $artist->setListeners((int) $response->stats->listeners);
-            $artist->setPlayCount((int) $response->stats->playcount);
-        }
-        elseif(isset($response->listeners)){
-            $artist->setListeners((int) $response->listeners);
+        if (!empty($response->stats)) {
+            $artist->setListeners((int)$response->stats->listeners);
+            $artist->setPlayCount((int)$response->stats->playcount);
+        } elseif (isset($response->listeners)) {
+            $artist->setListeners((int)$response->listeners);
         }
 
         $similar = array();
-        if(!empty($response->similar->artist)){
-            foreach($response->similar->artist as $similarArtistXML){
+        if (!empty($response->similar->artist)) {
+            foreach ($response->similar->artist as $similarArtistXML) {
                 $similarArtist = self::createFromResponse($similarArtistXML);
-                if(!empty($similarArtist)){
+                if (!empty($similarArtist)) {
                     $similar[$similarArtist->getName()] = $similarArtist;
                 }
             }
@@ -73,77 +72,22 @@ class Artist implements LastfmModelInterface
         $artist->setSimilar($similar);
 
         $tags = array();
-        if(!empty($response->tags->tag)){
-            foreach($response->tags->tag as $tag){
+        if (!empty($response->tags->tag)) {
+            foreach ($response->tags->tag as $tag) {
                 $tags[] = Tag::createFromResponse($tag);
             }
         }
         $artist->setTags($tags);
 
         $bio = array();
-        if(!empty($response->bio)){
-            $bio['published'] = (string) $response->bio->published;
-            $bio['summary'] = (string) $response->bio->summary;
-            $bio['content'] = (string) $response->bio->content;
+        if (!empty($response->bio)) {
+            $bio['published'] = (string)$response->bio->published;
+            $bio['summary']   = (string)$response->bio->summary;
+            $bio['content']   = (string)$response->bio->content;
         }
         $artist->setBio($bio);
 
-        $artist->setWeight((int) $response->weight);
-
-        return $artist;
-    }
-
-    public static function createFromJson(\stdClass $artistData)
-    {
-        $artist = new Artist();
-        $artist->setName($artistData->name);
-        $artist->setMbid($artistData->mbid);
-        $artist->setUrl($artistData->url);
-
-        $images = array();
-        foreach($artistData->image as $image){
-            if(!empty($image->size)){
-                $images[$image->size] = $image->{"#text"};
-            }
-        }
-        $artist->setImages($images);
-
-        $artist->setStreamable($artistData->streamable);
-
-        if(!empty($artistData->stats)){
-            $artist->setListeners($artistData->stats->listeners);
-            $artist->setPlayCount($artistData->stats->playcount);
-        }
-        elseif(isset($artistData->listeners)){
-            $artist->setListeners($artistData->listeners);
-        }
-
-        $similar = array();
-        if(!empty($artistData->similar->artist)){
-            foreach($artistData->similar->artist as $similarArtist){
-                $similarArtist = self::createFromJson($similarArtist);
-                if(!empty($similarArtist)){
-                    $similar[$similarArtist->getName()] = $similarArtist;
-                }
-            }
-        }
-        $artist->setSimilar($similar);
-
-        $tags = array();
-        if(!empty($artistData->tags->tag)){
-            foreach($artistData->tags->tag as $tag){
-                $tags[] = Tag::createFromJson($tag);
-            }
-        }
-        $artist->setTags($tags);
-
-        $bio = array();
-        if(!empty($artistData->bio)){
-            $bio['published'] = (string) $artistData->bio->published;
-            $bio['summary'] = (string) $artistData->bio->summary;
-            $bio['content'] = (string) $artistData->bio->content;
-        }
-        $artist->setBio($bio);
+        $artist->setWeight((int)$response->weight);
 
         return $artist;
     }
@@ -156,6 +100,75 @@ class Artist implements LastfmModelInterface
     public function setName($name)
     {
         $this->name = $name;
+    }
+
+    public static function createFromJson(\stdClass $artistData)
+    {
+        $artist = new Artist();
+        $artist->setName($artistData->name);
+        if (isset($artistData->mbid)) {
+            $artist->setMbid($artistData->mbid);
+        }
+        $artist->setUrl($artistData->url);
+
+        $images = array();
+        foreach ($artistData->image as $image) {
+            if (!empty($image->size)) {
+                $images[$image->size] = $image->{"#text"};
+            }
+        }
+        $artist->setImages($images);
+
+        if (isset($artistData->streamable)) {
+            $artist->setStreamable($artistData->streamable);
+        }
+
+        if (!empty($artistData->stats)) {
+            $artist->setListeners($artistData->stats->listeners);
+            $artist->setPlayCount($artistData->stats->playcount);
+        } elseif (isset($artistData->listeners)) {
+            $artist->setListeners($artistData->listeners);
+        }
+
+        $similar = array();
+        if (!empty($artistData->similar->artist)) {
+            if (is_array($artistData->similar->artist)) {
+                foreach ($artistData->similar->artist as $similarArtist) {
+                    $similarArtist = self::createFromJson($similarArtist);
+                    if (!empty($similarArtist)) {
+                        $similar[$similarArtist->getName()] = $similarArtist;
+                    }
+                }
+            } else {
+                $similarArtist = self::createFromJson($artistData->similar->artist);
+                if (!empty($similarArtist)) {
+                    $similar[$similarArtist->getName()] = $similarArtist;
+                }
+            }
+        }
+        $artist->setSimilar($similar);
+
+        $tags = array();
+        if (!empty($artistData->tags->tag)) {
+            if (is_array($artistData->tags->tag)) {
+                foreach ($artistData->tags->tag as $tag) {
+                    $tags[] = Tag::createFromJson($tag);
+                }
+            } else {
+                $tags[] = Tag::createFromJson($artistData->tags->tag);
+            }
+        }
+        $artist->setTags($tags);
+
+        $bio = array();
+        if (!empty($artistData->bio)) {
+            $bio['published'] = (string)$artistData->bio->published;
+            $bio['summary']   = (string)$artistData->bio->summary;
+            $bio['content']   = (string)$artistData->bio->content;
+        }
+        $artist->setBio($bio);
+
+        return $artist;
     }
 
     public function getMbid()
@@ -177,7 +190,7 @@ class Artist implements LastfmModelInterface
     {
         $this->url = $url;
     }
-    
+
     public function getImages()
     {
         return $this->images;
@@ -247,7 +260,7 @@ class Artist implements LastfmModelInterface
     {
         $this->bio = $bio;
     }
-    
+
     public function getWeight()
     {
         return $this->weight;
@@ -257,5 +270,4 @@ class Artist implements LastfmModelInterface
     {
         $this->weight = $weight;
     }
-
 }

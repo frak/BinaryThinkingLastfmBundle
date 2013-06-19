@@ -9,40 +9,57 @@ namespace BinaryThinking\LastfmBundle\Lastfm\Model;
  */
 class Tag implements LastfmModelInterface
 {
-    
+
     protected $name;
-    
+
     protected $count;
-    
+
     protected $url;
-    
+
     protected $reach;
-    
+
     protected $taggings;
-    
+
     protected $streamable;
-    
+
     protected $published;
-    
+
     protected $summary;
-    
+
     protected $content;
-    
-    public static function createFromResponse(\SimpleXMLElement $response){
+
+    public static function createFromResponse(\SimpleXMLElement $response)
+    {
         $tag = new Tag();
-        $tag->setName((string) $response->name);
-        $tag->setCount((int) $response->count);
-        $tag->setUrl((string) $response->url);
-        $tag->setReach((int) $response->reach);
-        $tag->setTaggings((int) $response->taggings);
-        $tag->setStreamable((int) $response->streamable);
-        $tag->setPublished((string) $response->wiki->published);
-        $tag->setSummary((string) $response->wiki->summary);
-        $tag->setContent((string) $response->wiki->content);
-        
+        $tag->setName((string)$response->name);
+        $tag->setCount((int)$response->count);
+        $tag->setUrl((string)$response->url);
+        $tag->setReach((int)$response->reach);
+        $tag->setTaggings((int)$response->taggings);
+        $tag->setStreamable((int)$response->streamable);
+        $tag->setPublished((string)$response->wiki->published);
+        $tag->setSummary((string)$response->wiki->summary);
+        $tag->setContent((string)$response->wiki->content);
+
         return $tag;
     }
-    
+
+    public static function createFromJson(\stdClass $tagData)
+    {
+        $tag = new Tag();
+        $tag->setName($tagData->name);
+        $tag->setCount(@$tagData->count);
+        $tag->setUrl($tagData->url);
+        $tag->setReach(@$tagData->reach);
+        $tag->setTaggings(@$tagData->taggings);
+        $tag->setStreamable(@$tagData->streamable);
+        $tag->setPublished(@$tagData->wiki->published);
+        $tag->setSummary(@$tagData->wiki->summary);
+        $tag->setContent(@$tagData->wiki->content);
+
+        return $tag;
+    }
+
     public function getName()
     {
         return $this->name;
@@ -72,7 +89,7 @@ class Tag implements LastfmModelInterface
     {
         $this->url = $url;
     }
-    
+
     public function getReach()
     {
         return $this->reach;
@@ -132,5 +149,4 @@ class Tag implements LastfmModelInterface
     {
         $this->content = $content;
     }
-
 }

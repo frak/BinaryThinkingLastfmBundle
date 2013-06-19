@@ -94,12 +94,13 @@ class ArtistMethodsClient extends LastfmAPIClient
                 'mbid'        => $mbid,
                 'lang'        => $lang,
                 'username'    => $username,
-                'autocorrect' => $autocorrect
+                'autocorrect' => $autocorrect,
+                'format'      => 'json',
             )
         );
 
         if (!empty($response->artist)) {
-            $artist = LastfmModel\Artist::createFromResponse($response);
+            $artist = LastfmModel\Artist::createFromJson($response->artist);
         }
 
         return $artist;
@@ -215,14 +216,20 @@ class ArtistMethodsClient extends LastfmAPIClient
                 'method'      => 'artist.getTopTags',
                 'artist'      => $artist,
                 'mbid'        => $mbid,
-                'autocorrect' => $autocorrect
+                'autocorrect' => $autocorrect,
+                'format'      => 'json'
             )
         );
 
         $tags = array();
         if (!empty($response->toptags->tag)) {
-            foreach ($response->toptags->tag as $artistTag) {
-                $tag                   = LastfmModel\Tag::createFromResponse($artistTag);
+            if (is_array($response->toptags->tag)) {
+                foreach ($response->toptags->tag as $artistTag) {
+                    $tag                   = LastfmModel\Tag::createFromJson($artistTag);
+                    $tags[$tag->getName()] = $tag;
+                }
+            } else {
+                $tag                   = LastfmModel\Tag::createFromJson($response->toptags->tag);
                 $tags[$tag->getName()] = $tag;
             }
         }
